@@ -1,10 +1,15 @@
 ﻿<Project Sdk="Dalamud.NET.Sdk/13.0.0">
   <PropertyGroup>
-    <Authors>MgAl2O4</Authors>
-    <Version>1.13.0.0</Version>
-    <Description>Triple triad solver</Description>
-    <Copyright>(c) 2025 MgAl2O4</Copyright>
-    <PackageProjectUrl>https://github.com//MgAl2O4/FFTriadBuddyDalamud</PackageProjectUrl>
+    <Authors>curtissvoboda (Enhanced by), MgAl2O4 (Original)</Authors>
+    <Version>1.0.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Description>Enhanced Triple Triad solver with comprehensive PvP support and adaptive AI</Description>
+    <Copyright>(c) 2025 curtissvoboda, MgAl2O4</Copyright>
+    <PackageProjectUrl>https://github.com/curtissvoboda/FFTriadBuddyEnhanced</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/curtissvoboda/FFTriadBuddyEnhanced</RepositoryUrl>
+    <AssemblyTitle>TriadBuddy Enhanced</AssemblyTitle>
+    <Product>TriadBuddy Enhanced</Product>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,8 +18,8 @@
     <None Remove="assets\loc\es.json" />
     <None Remove="assets\loc\fr.json" />
     <None Remove="assets\loc\ja.json" />
-	<None Remove="assets\loc\ko.json" />
-	<None Remove="assets\loc\zh.json" />
+    <None Remove="assets\loc\ko.json" />
+    <None Remove="assets\loc\zh.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,8 +28,8 @@
     <EmbeddedResource Include="assets\loc\es.json" />
     <EmbeddedResource Include="assets\loc\fr.json" />
     <EmbeddedResource Include="assets\loc\ja.json" />
-	<EmbeddedResource Include="assets\loc\ko.json" />
-	<EmbeddedResource Include="assets\loc\zh.json" />
+    <EmbeddedResource Include="assets\loc\ko.json" />
+    <EmbeddedResource Include="assets\loc\zh.json" />
   </ItemGroup>
 
   <ItemGroup>

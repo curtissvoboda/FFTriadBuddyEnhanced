@@ -1,9 +1,38 @@
 {
-  "Author": "MgAl2O4",
-  "Name": "TriadBuddy",
-  "Punchline": "Triple triad solver",
-  "Description": "Triple triad solver, NPC matches only.\n- highlights next move during mini game\n- evaluates all deck presets before match\n- deck optimizer for NPC\n- adds more details to card collection window",
-  "InternalName": "TriadBuddy",
+  "Author": "curtissvoboda (Enhanced by), MgAl2O4 (Original)",
+  "Name": "TriadBuddy Enhanced",
+  "Punchline": "Advanced Triple Triad solver with comprehensive PvP support",
+  "Description": "Revolutionary Triple Triad enhancement with comprehensive PvP support, aggressive AI optimization, and adaptive learning.\n\n🎯 Features:\n- Full PvP support with no restrictions\n- Advanced AI solver with 8-level deep search\n- Monte Carlo simulations for move prediction\n- Real-time opponent pattern learning\n- GitHub-integrated card database with live updates\n- Adaptive deck building for competitive meta\n- Comprehensive match analytics and statistics\n\n🚀 Commands:\n- /pvptriad stats - View PvP performance analytics\n- /pvptriad deck - Build optimal competitive decks\n- /pvptriad update - Update database from GitHub\n- /pvptriad export - Export match data",
+  "InternalName": "TriadBuddyEnhanced",
+  "AssemblyVersion": "1.0.0.0",
+  "TestingAssemblyVersion": "1.0.0.0",
+  "RepoUrl": "https://github.com/curtissvoboda/FFTriadBuddyEnhanced",
   "ApplicableVersion": "any",
-  "Tags": [ "solver", "triad", "triple triad" ]
+  "DalamudApiLevel": 9,
+  "LoadRequiredState": 0,
+  "LoadSync": false,
+  "CanUnloadAsync": false,
+  "LoadPriority": 0,
+  "Changelog": "Initial release: Comprehensive PvP enhancement with aggressive optimization algorithms, real-time learning, and adaptive strategies for competitive Triple Triad dominance.",
+  "Tags": [
+    "solver",
+    "triad",
+    "triple triad",
+    "pvp",
+    "competitive",
+    "ai",
+    "optimization",
+    "analytics",
+    "deck builder",
+    "machine learning"
+  ],
+  "CategoryTags": [
+    "jobs",
+    "utility",
+    "other"
+  ],
+  "IsHide": false,
+  "IsTestingExclusive": false,
+  "AcceptsFeedback": true,
+  "SupportsProfiles": true
 }
