@@ -1,0 +1,44 @@
+[
+  {
+    "Name": "Same",
+    "Description": "If two adjacent cards have the same number on their touching sides, both cards are captured",
+    "CardTypeModifiers": {
+      "Primal": 1.1,
+      "Scion": 0.9
+    },
+    "PositionalModifiers": {
+      "center": 1.3,
+      "corner": 0.8,
+      "edge": 1.0
+    },
+    "IsPvPOptimal": true,
+    "AggressionMultiplier": 1.2
+  },
+  {
+    "Name": "Plus",
+    "Description": "If the sum of two adjacent cards' touching sides equals the sum of another pair, all cards are captured",
+    "CardTypeModifiers": {
+      "Garlean": 1.2,
+      "Beastman": 1.1
+    },
+    "PositionalModifiers": {
+      "center": 1.4,
+      "corner": 0.9,
+      "edge": 1.1
+    },
+    "IsPvPOptimal": true,
+    "AggressionMultiplier": 1.3
+  },
+  {
+    "Name": "Chaos",
+    "Description": "Cards are placed randomly on the board",
+    "CardTypeModifiers": {
+      "All": 1.0
+    },
+    "PositionalModifiers": {
+      "all": 1.0
+    },
+    "IsPvPOptimal": false,
+    "AggressionMultiplier": 0.8
+  }
+]

@@ -6,14 +6,15 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using MgAl2O4.Utils;
 using System;
+using System.Threading.Tasks;
 
 namespace TriadBuddyPlugin
 {
     public class Plugin : IDalamudPlugin
     {
-        public string Name => "Triad Buddy";
+        public string Name => "Triad Buddy Enhanced";
 
-        private readonly WindowSystem windowSystem = new("TriadBuddy");
+        private readonly WindowSystem windowSystem = new("TriadBuddyEnhanced");
 
         private readonly PluginWindowStatus statusWindow;
         private readonly CommandInfo statusCommand;
@@ -27,6 +28,11 @@ namespace TriadBuddyPlugin
         private readonly UIReaderScheduler uiReaderScheduler;
         private readonly PluginOverlays overlays;
         private readonly Localization locManager;
+
+        // Enhanced PvP components
+        private readonly EnhancedCardDatabase enhancedDatabase;
+        private readonly PvPMatchTracker pvpTracker;
+        private readonly AggressiveDeckBuilder deckBuilder;
 
         public static Localization? CurrentLocManager;
         private string[] supportedLangCodes = { "de", "en", "es", "fr", "ja", "ko", "zh" };
@@ -44,9 +50,23 @@ namespace TriadBuddyPlugin
             Service.pluginInterface = pluginInterface;
             Service.pluginConfig = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
+            // Initialize enhanced PvP components
+            enhancedDatabase = new EnhancedCardDatabase();
+            pvpTracker = new PvPMatchTracker(enhancedDatabase);
+            deckBuilder = new AggressiveDeckBuilder(enhancedDatabase);
+
+            // Start background database update
+            Task.Run(async () =>
+            {
+                if (enhancedDatabase.ShouldUpdate())
+                {
+                    await enhancedDatabase.UpdateFromGitHub();
+                }
+            });
+
             // prep utils
             var myAssemblyName = GetType().Assembly.GetName().Name;
-            locManager = new Localization($"{myAssemblyName}.assets.loc.", "", true);            // res stream format: TriadBuddy.assets.loc.en.json
+            locManager = new Localization($"{myAssemblyName}.assets.loc.", "", true);
             locManager.SetupWithLangCode(pluginInterface.UiLanguage);
             CurrentLocManager = locManager;
 
@@ -63,7 +83,19 @@ namespace TriadBuddyPlugin
 
             // prep data scrapers
             uiReaderGame = new UIReaderTriadGame();
-            uiReaderGame.OnUIStateChanged += (state) => { if (state != null) { SolverUtils.solverGame?.UpdateGame(state); } };
+            uiReaderGame.OnUIStateChanged += (state) => 
+            { 
+                if (state != null) 
+                { 
+                    SolverUtils.solverGame?.UpdateGame(state);
+                    
+                    // Track PvP matches
+                    if (state.isPvP)
+                    {
+                        TrackPvPMatch(state);
+                    }
+                } 
+            };
 
             uiReaderPrep = new UIReaderTriadPrep();
             uiReaderPrep.shouldScanDeckData = (SolverUtils.solverPreGameDecks?.profileGS == null) || SolverUtils.solverPreGameDecks.profileGS.HasErrors;
@@ -73,7 +105,19 @@ namespace TriadBuddyPlugin
             uiReaderDeckEdit = new UIReaderTriadDeckEdit();
 
             var uiReaderMatchResults = new UIReaderTriadResults();
-            uiReaderMatchResults.OnUpdated += (state) => { if (SolverUtils.solverGame != null) { statTracker.OnMatchFinished(SolverUtils.solverGame, state); } };
+            uiReaderMatchResults.OnUpdated += (state) => 
+            { 
+                if (SolverUtils.solverGame != null) 
+                { 
+                    statTracker.OnMatchFinished(SolverUtils.solverGame, state);
+                    
+                    // Record PvP match completion
+                    if (SolverUtils.solverGame.isPvPMode)
+                    {
+                        RecordPvPMatchCompletion(state);
+                    }
+                } 
+            };
 
             uiReaderScheduler = new UIReaderScheduler(Service.gameGui);
             uiReaderScheduler.AddObservedAddon(uiReaderGame);
@@ -106,9 +150,17 @@ namespace TriadBuddyPlugin
             windowSystem.AddWindow(new PluginWindowCardSearch(uiReaderCardList, npcStatsWindow));
             windowSystem.AddWindow(new PluginWindowDeckSearch(uiReaderDeckEdit));
 
+            // Add PvP-specific windows
+            windowSystem.AddWindow(new PluginWindowPvPStats(pvpTracker));
+            windowSystem.AddWindow(new PluginWindowPvPDeckBuilder(deckBuilder, enhancedDatabase));
+
             // prep plugin hooks
             statusCommand = new(OnCommand) { HelpMessage = string.Format(Localization.Localize("Cmd_Status", "Show state of {0} plugin"), Name) };
             Service.commandManager.AddHandler("/triadbuddy", statusCommand);
+
+            // Enhanced PvP commands
+            var pvpCommand = new CommandInfo(OnPvPCommand) { HelpMessage = "PvP Triple Triad commands" };
+            Service.commandManager.AddHandler("/pvptriad", pvpCommand);
 
             pluginInterface.LanguageChanged += OnLanguageChanged;
             pluginInterface.UiBuilder.Draw += OnDraw;
@@ -116,11 +168,54 @@ namespace TriadBuddyPlugin
             pluginInterface.UiBuilder.OpenMainUi += () => OnCommand("", "");
 
             Service.framework.Update += Framework_Update;
+
+            Service.logger.Info("Triad Buddy Enhanced loaded with comprehensive PvP support!");
+        }
+
+        private void OnPvPCommand(string command, string args)
+        {
+            switch (args.ToLower())
+            {
+                case "stats":
+                    // Open PvP stats window
+                    var pvpStatsWindow = windowSystem.Windows.OfType<PluginWindowPvPStats>().FirstOrDefault();
+                    if (pvpStatsWindow != null) pvpStatsWindow.IsOpen = true;
+                    break;
+                case "deck":
+                    // Open PvP deck builder
+                    var deckBuilderWindow = windowSystem.Windows.OfType<PluginWindowPvPDeckBuilder>().FirstOrDefault();
+                    if (deckBuilderWindow != null) deckBuilderWindow.IsOpen = true;
+                    break;
+                case "update":
+                    // Force database update
+                    Task.Run(async () => await enhancedDatabase.UpdateFromGitHub());
+                    Service.chatGui.Print("Updating card database from GitHub...");
+                    break;
+                case "export":
+                    // Export match data
+                    pvpTracker.ExportMatchData();
+                    Service.chatGui.Print("Match data exported!");
+                    break;
+                default:
+                    Service.chatGui.Print("PvP Commands: /pvptriad stats|deck|update|export");
+                    break;
+            }
+        }
+
+        private void TrackPvPMatch(UIStateTriadGame state)
+        {
+            // Implementation for tracking ongoing PvP match
+            // This would record moves, timing, etc.
+        }
+
+        private void RecordPvPMatchCompletion(UIReaderTriadResults results)
+        {
+            // Implementation for recording completed PvP match
+            // This would finalize the match record and update statistics
         }
 
         private void OnLanguageChanged(string langCode)
         {
-            // check if resource is available, will cause exception if trying to load empty json
             if (Array.Find(supportedLangCodes, x => x == langCode) != null)
             {
                 locManager.SetupWithLangCode(langCode);
@@ -136,6 +231,7 @@ namespace TriadBuddyPlugin
         public void Dispose()
         {
             Service.commandManager.RemoveHandler("/triadbuddy");
+            Service.commandManager.RemoveHandler("/pvptriad");
             Service.framework.Update -= Framework_Update;
             windowSystem.RemoveAllWindows();
         }
@@ -166,6 +262,12 @@ namespace TriadBuddyPlugin
                 {
                     float deltaSeconds = (float)framework.UpdateDelta.TotalSeconds;
                     uiReaderScheduler.Update(deltaSeconds);
+
+                    // Periodic database updates
+                    if (enhancedDatabase.ShouldUpdate())
+                    {
+                        Task.Run(async () => await enhancedDatabase.UpdateFromGitHub());
+                    }
                 }
             }
             catch (Exception ex)

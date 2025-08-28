@@ -1,0 +1,34 @@
+[
+  {
+    "Id": 1,
+    "Name": "Dodo",
+    "Sides": [2, 1, 4, 3],
+    "Rarity": 1,
+    "Type": 0,
+    "WinRate": 0.45,
+    "PvPEffectiveness": 0.6,
+    "RuleModifiers": {
+      "Same": 1.2,
+      "Plus": 1.1
+    },
+    "CounterCards": [15, 23, 45],
+    "SynergyCards": [12, 34],
+    "LastUpdated": "2025-01-01T00:00:00Z"
+  },
+  {
+    "Id": 2,
+    "Name": "Tonberry",
+    "Sides": [3, 6, 2, 1],
+    "Rarity": 3,
+    "Type": 3,
+    "WinRate": 0.72,
+    "PvPEffectiveness": 0.85,
+    "RuleModifiers": {
+      "Chaos": 1.3,
+      "Random": 0.9
+    },
+    "CounterCards": [7, 18, 29],
+    "SynergyCards": [5, 11, 22],
+    "LastUpdated": "2025-01-01T00:00:00Z"
+  }
+]
